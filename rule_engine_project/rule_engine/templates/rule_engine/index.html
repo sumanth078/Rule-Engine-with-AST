@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rule Engine</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <style>
+        /* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Basic styling for the body */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+/* Main container */
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Headings styling */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4A90E2;
+}
+
+h2 {
+    color: #4A90E2;
+    margin: 15px 0;
+}
+
+/* Form styling */
+.rule-form,
+.evaluation {
+    margin-bottom: 10px;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+/* Textarea styling */
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    resize: none; /* Prevent resizing */
+    font-size: 16px;
+}
+
+/* Button styling */
+button {
+    background-color: #4A90E2;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #357ABD; /* Darker shade for hover effect */
+}
+
+/* List of rules */
+.rule-list {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #fff;
+}
+
+.rule-list ul {
+    list-style-type: none; /* Remove bullet points */
+}
+
+.rule-list li {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+}
+
+.rule-list li:last-child {
+    border-bottom: none; /* Remove border for last item */
+}
+
+/* Evaluation result */
+#evaluation-result {
+    border: 1px solid #4A90E2;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #e8f4fd; /* Light blue background */
+    white-space: pre-wrap; /* Preserve whitespace */
+    margin-top: 10px;
+}
+
+/* Media query for responsiveness */
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+
+    button {
+        width: 100%;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Rule Engine</h1>
+
+        <!-- Form to create a new rule -->
+        <div class="rule-form">
+            <h2>Create Rule</h2>
+            <form id="rule-form">
+                <textarea id="rule-input" placeholder="Enter your rule here..."></textarea>
+                <button type="button" onclick="createRule()">Create Rule</button>
+            </form>
+        </div>
+
+        <!-- List of rules -->
+        <div class="rule-list">
+            <h2>Available Rules</h2>
+            <ul id="rule-list">
+                {% for rule in rules %}
+                    <li>{{ rule.rule_string }}</li> <!-- Display each rule -->
+                {% empty %}
+                    <li>No rules available.</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Section to evaluate rules -->
+        <div class="evaluation">
+            <h2>Evaluate Rule</h2>
+            <form id="evaluate-form">
+                <textarea id="data-input" placeholder="Enter user data in JSON format..."></textarea>
+                <button type="button" onclick="evaluateRules()">Evaluate</button>
+            </form>
+            <div id="evaluation-result">
+                <!-- Evaluation result will be shown here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function createRule() {
+            const ruleInput = document.getElementById('rule-input').value;
+            const response = await fetch('/create_rule/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rule: ruleInput }),
+            });
+            const result = await response.json();
+            alert(result.message);
+            if (result.success) {
+                // Refresh the page to show the new rule
+                window.location.reload();
+            }
+        }
+
+        async function evaluateRules() {
+            const dataInput = document.getElementById('data-input').value;
+            const userData = JSON.parse(dataInput);
+            const response = await fetch('/evaluate_rule/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_data: userData }),
+            });
+            const result = await response.json();
+            document.getElementById('evaluation-result').innerText = JSON.stringify(result.results, null, 2);
+        }
+    </script>
+</body>
+</html>
