@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from rule_engine.views import index, create_rule_view, evaluate_rule_view  # Import delete_rule_view
+from rule_engine.views import index, create_rule_view, evaluate_rule_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
